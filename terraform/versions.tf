@@ -10,10 +10,10 @@ terraform {
   }
 
   backend "azurerm" {
-    resource_group_name  = "tfstate-rg"
-    storage_account_name = "tfstatevault"
-    container_name       = "tfstate-live"
+    resource_group_name  = "terraform-rg"
+    storage_account_name = "tfstatearc"
+    container_name       = "owasp-dependency-track"
     # key: The name of the state store file to be created.
-    key = "owasp-dependency-tracker.tfstate"
+    key = "dtrack-live.tfstate"
   }
 }
