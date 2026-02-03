@@ -61,13 +61,24 @@ resource "azurerm_automation_runbook" "start" {
 param(
   [Parameter(Mandatory=$true)] [string] $sid,
   [Parameter(Mandatory=$true)] [string] $rgname,
-  [Parameter(Mandatory=$true)] [string] $pgsrvname
+  [Parameter(Mandatory=$true)] [string] $pgsrvname,
+  [Parameter(Mandatory=$true)] [string] $apiAppName,
+  [Parameter(Mandatory=$true)] [string] $frontendAppName
 )
 Connect-AzAccount -Identity
 Set-AzContext -Subscription $sid
 
 # Start PostgreSQL
 Start-AzPostgreSqlFlexibleServer -Name $pgsrvname -ResourceGroupName $rgname
+
+# Start Container Apps (set min_replicas to 1)
+$apiApp = Get-AzContainerApp -Name $apiAppName -ResourceGroupName $rgname
+$apiApp.TemplateScaleMinReplica = 1
+$apiApp | Update-AzContainerApp
+
+$frontendApp = Get-AzContainerApp -Name $frontendAppName -ResourceGroupName $rgname
+$frontendApp.TemplateScaleMinReplica = 1
+$frontendApp | Update-AzContainerApp
 _EOS_
 }
 
@@ -85,10 +96,21 @@ resource "azurerm_automation_runbook" "stop" {
 param(
   [Parameter(Mandatory=$true)] [string] $sid,
   [Parameter(Mandatory=$true)] [string] $rgname,
-  [Parameter(Mandatory=$true)] [string] $pgsrvname
+  [Parameter(Mandatory=$true)] [string] $pgsrvname,
+  [Parameter(Mandatory=$true)] [string] $apiAppName,
+  [Parameter(Mandatory=$true)] [string] $frontendAppName
 )
 Connect-AzAccount -Identity
 Set-AzContext -Subscription $sid
+
+# Stop Container Apps (set min_replicas to 0)
+$apiApp = Get-AzContainerApp -Name $apiAppName -ResourceGroupName $rgname
+$apiApp.TemplateScaleMinReplica = 0
+$apiApp | Update-AzContainerApp
+
+$frontendApp = Get-AzContainerApp -Name $frontendAppName -ResourceGroupName $rgname
+$frontendApp.TemplateScaleMinReplica = 0
+$frontendApp | Update-AzContainerApp
 
 # Stop PostgreSQL
 Stop-AzPostgreSqlFlexibleServer -Name $pgsrvname -ResourceGroupName $rgname
@@ -103,9 +125,11 @@ resource "azurerm_automation_job_schedule" "start" {
   schedule_name           = azurerm_automation_schedule.workday_morning.name
 
   parameters = {
-    sid       = var.subscription_id
-    rgname    = azurerm_resource_group.this.name
-    pgsrvname = azurerm_postgresql_flexible_server.this.name
+    sid             = var.subscription_id
+    rgname          = azurerm_resource_group.this.name
+    pgsrvname       = azurerm_postgresql_flexible_server.this.name
+    apiappname      = azurerm_container_app.api.name
+    frontendappname = azurerm_container_app.frontend.name
   }
 }
 resource "azurerm_automation_job_schedule" "stop" {
@@ -115,8 +139,10 @@ resource "azurerm_automation_job_schedule" "stop" {
   schedule_name           = azurerm_automation_schedule.evening.name
 
   parameters = {
-    sid       = var.subscription_id
-    rgname    = azurerm_resource_group.this.name
-    pgsrvname = azurerm_postgresql_flexible_server.this.name
+    sid             = var.subscription_id
+    rgname          = azurerm_resource_group.this.name
+    pgsrvname       = azurerm_postgresql_flexible_server.this.name
+    apiappname      = azurerm_container_app.api.name
+    frontendappname = azurerm_container_app.frontend.name
   }
 }
