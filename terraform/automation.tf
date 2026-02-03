@@ -42,7 +42,7 @@ resource "azurerm_automation_runbook" "start" {
   location                = var.location
   resource_group_name     = azurerm_resource_group.this.name
   automation_account_name = azurerm_automation_account.this.name
-  log_verbose             = true
+  log_verbose             = false
   log_progress            = true
   runbook_type            = "PowerShell72"
 
@@ -76,7 +76,7 @@ resource "azurerm_automation_runbook" "stop" {
   location                = var.location
   resource_group_name     = azurerm_resource_group.this.name
   automation_account_name = azurerm_automation_account.this.name
-  log_verbose             = true
+  log_verbose             = false
   log_progress            = true
   runbook_type            = "PowerShell72"
 
