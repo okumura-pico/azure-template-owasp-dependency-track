@@ -17,6 +17,7 @@ variable "pgsql_login" {
 variable "pgsql_password" {
   type        = string
   description = "PostgreSQL administrator パスワード"
+  sensitive   = true
 }
 variable "pgsql_sku_name" {
   type    = string
