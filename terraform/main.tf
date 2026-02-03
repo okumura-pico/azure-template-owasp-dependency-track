@@ -161,7 +161,7 @@ resource "azurerm_container_app" "api" {
   template {
     min_replicas               = 0
     max_replicas               = 1
-    cooldown_period_in_seconds = 90
+    cooldown_period_in_seconds = 180
 
     container {
       name   = "apiserver"
@@ -222,7 +222,7 @@ resource "azurerm_container_app" "frontend" {
   template {
     min_replicas               = 0
     max_replicas               = 1
-    cooldown_period_in_seconds = 90
+    cooldown_period_in_seconds = 180
 
     container {
       name   = "frontend"
