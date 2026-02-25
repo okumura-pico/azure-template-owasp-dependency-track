@@ -23,3 +23,7 @@ variable "pgsql_sku_name" {
   type    = string
   default = "B_Standard_B2ms"
 }
+variable "budget_notification_emails" {
+  type        = list(string)
+  description = "予算通知先"
+}

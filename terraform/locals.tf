@@ -5,6 +5,9 @@ locals {
   dtrack_apiserver_image_tag = "dependencytrack/apiserver:latest"
   dtrack_frontend_image_tag  = "dependencytrack/frontend:latest"
 
+  # 予算
+  budget_amount = 7000
+
   now = timestamp()
   # 次の日本時間8:50
   today_2350_utc = "${formatdate("YYYY-MM-DD", local.now)}T23:50:00Z"
