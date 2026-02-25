@@ -61,10 +61,6 @@ Start-AzPostgreSqlFlexibleServer -Name $pgsrvname -ResourceGroupName $rgname
 
 # Start Container Apps (set min_replicas to 1)
 Get-AzContainerApp -ResourceGroupName $rgname | Update-AzContainerApp -ScaleMinReplica 1
-
-$frontendApp = Get-AzContainerApp -Name $frontendAppName -ResourceGroupName $rgname
-$frontendApp.TemplateScaleMinReplica = 1
-$frontendApp | Update-AzContainerApp
 _EOS_
 }
 
