@@ -8,8 +8,8 @@ resource "azurerm_consumption_budget_resource_group" "this" {
   time_grain        = "BillingMonth"
 
   time_period {
-    start_date = local.now
-    end_date   = "2036-12-31"
+    start_date = "2026-01-01T00:00:00Z"
+    end_date   = "2036-01-01T00:00:00Z"
   }
 
   notification {
