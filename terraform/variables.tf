@@ -27,3 +27,7 @@ variable "budget_notification_emails" {
   type        = list(string)
   description = "予算通知先"
 }
+variable "common_tags" {
+  type        = map(string)
+  description = "全てのリソース共通のタグ"
+}
