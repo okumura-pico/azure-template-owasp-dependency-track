@@ -185,7 +185,7 @@ resource "azurerm_container_app" "api" {
   revision_mode                = "Single"
 
   template {
-    min_replicas               = 0
+    min_replicas               = 1
     max_replicas               = 1
     cooldown_period_in_seconds = 360
 
