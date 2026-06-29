@@ -4,6 +4,7 @@
 resource "azurerm_resource_group" "this" {
   location = var.location
   name     = "${var.prefix}-rg"
+  tags     = var.common_tags
 }
 
 ##
@@ -133,6 +134,31 @@ resource "azurerm_monitor_diagnostic_setting" "pgsql" {
 }
 
 ##
+## Storage (API /data 永続化)
+##
+resource "azurerm_storage_account" "this" {
+  name                     = "${var.prefix}${module.naming.storage_account.name_unique}"
+  resource_group_name      = azurerm_resource_group.this.name
+  location                 = var.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  tags                     = var.common_tags
+}
+resource "azurerm_storage_share" "api_data" {
+  name               = "api-data"
+  storage_account_id = azurerm_storage_account.this.id
+  quota              = 2
+}
+resource "azurerm_container_app_environment_storage" "api_data" {
+  name                         = "api-data"
+  container_app_environment_id = azurerm_container_app_environment.this.id
+  account_name                 = azurerm_storage_account.this.name
+  share_name                   = azurerm_storage_share.api_data.name
+  access_key                   = azurerm_storage_account.this.primary_access_key
+  access_mode                  = "ReadWrite"
+}
+
+##
 ## Container Apps
 ##
 resource "azurerm_container_app_environment" "this" {
@@ -163,6 +189,13 @@ resource "azurerm_container_app" "api" {
     max_replicas               = 1
     cooldown_period_in_seconds = 360
 
+    volume {
+      name         = "api-data"
+      storage_type = "AzureFile"
+      storage_name = azurerm_container_app_environment_storage.api_data.name
+      mount_options = "dir_mode=0777,file_mode=0666"
+    }
+
     container {
       name   = "apiserver"
       image  = "${local.image_registry}/${local.dtrack_apiserver_image_tag}"
@@ -188,6 +221,11 @@ resource "azurerm_container_app" "api" {
       env {
         name        = "ALPINE_DATABASE_PASSWORD"
         secret_name = "db-password"
+      }
+
+      volume_mounts {
+        name = "api-data"
+        path = "/data"
       }
     }
   }
