@@ -60,7 +60,7 @@ Set-AzContext -Subscription $sid
 Start-AzPostgreSqlFlexibleServer -Name $pgsrvname -ResourceGroupName $rgname
 
 # Start Container Apps (set min_replicas to 1)
-Get-AzContainerApp -ResourceGroupName $rgname | Update-AzContainerApp -ScaleMinReplica 1
+Get-AzContainerApp -ResourceGroupName $rgname | Start-AzContainerApp
 _EOS_
 }
 
@@ -87,7 +87,7 @@ Connect-AzAccount -Identity
 Set-AzContext -Subscription $sid
 
 # Stop Container Apps (set min_replicas to 0)
-Get-AzContainerApp -ResourceGroupName $rgname | Update-AzContainerApp -ScaleMinReplica 0
+Get-AzContainerApp -ResourceGroupName $rgname | Stop-AzContainerApp
 
 # Stop PostgreSQL
 Stop-AzPostgreSqlFlexibleServer -Name $pgsrvname -ResourceGroupName $rgname
